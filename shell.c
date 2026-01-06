@@ -1,5 +1,7 @@
 #include <stdio.h>
 #include <unistd.h>
+#include <stdlib.h>
+#include<string.h>
 #include <sys/types.h>
 #include <sys/wait.h>
 
@@ -14,38 +16,39 @@ void l_free(char **list_w)
 	}
 }
 
-void string_to_list(char *string, char **list)
+int string_to_list(char *string, char **list, size_t buf_size)
 {
 	int i, j = 0, idx_w = 0;
-	char *buf_w;
+	char *word;
 
-	buf_w = malloc(buf_size * sizeof(char));
-	if(buf_w == NULL)
+	word = malloc(buf_size * sizeof(char));
+	if(word == NULL)
 		return(1);
 	j = 0;
 	idx_w = 0;
-	buf_w[0] = '\0';
+	word[0] = '\0';
 	for(i = 0; string[i] != '\0'; i++)
 	{
 		if (string[i] == ' ' || string[i] == '\n')
 		{
-			list_w[idx_w] = strdup(buf_w);
-			if(list_w == NULL)
+			list[idx_w] = strdup(word);
+			if(list == NULL)
 			{
-				l_free(list_w);
+				l_free(list);
 				return(1);
 			}
 			idx_w++;
-			list_w[idx_w] = NULL;
+			list[idx_w] = NULL;
 			j = 0;
 		}
 		else
 		{
-			buf_w[j] = buffer[i];
+			word[j] = string[i];
 			j++;
 		}
-		buf_w[j] = '\0';
+		word[j] = '\0';
 	}
+	return(0);
 }
 
 /**
@@ -56,8 +59,11 @@ void string_to_list(char *string, char **list)
 int main(void)
 {
 	pid_t child_pid;
+	size_t buf_size = 1024;
 	int status, i = 0;
-	char *argv[] = {"/bin/ls", "-l", "/tmp/", NULL};
+	char **list_w;
+	char *buffer;
+	ssize_t res;
 
 	do
 	{
@@ -70,7 +76,30 @@ int main(void)
 		}
 		if (child_pid == 0)
 		{
-			if (execve(argv[0], argv, NULL) == -1)
+			buffer = malloc(buf_size * sizeof(char));
+			if(buffer == NULL)
+				return(1);
+			list_w = malloc(buf_size * sizeof(char *));
+			if(list_w == NULL)
+			{
+				free(buffer);
+				return(1);
+			}
+			printf("$ ");
+			res = getline(&buffer, &buf_size, stdin);
+			if (res == -1)
+			{
+				free(buffer);
+				free(list_w);
+				return(1);
+			}
+			if(string_to_list(buffer, list_w, buf_size) == 1)
+			{
+				free(buffer);
+                                free(list_w);
+                                return(1);
+			}
+			if (execve(list_w[0], list_w, NULL) == -1)
 			{
 				perror("Error:");
 			}
@@ -80,6 +109,6 @@ int main(void)
 			wait(&status);
 		}
 	}
-	while (i < 5 && child_pid != 0);
+	while (child_pid != 0);
 	return (0);
 }
