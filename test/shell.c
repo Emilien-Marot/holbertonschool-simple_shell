@@ -5,8 +5,6 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 
-#define BUF_SIZE 1024
-
 void l_free(char **list_w)
 {
 	int i;
@@ -18,14 +16,12 @@ void l_free(char **list_w)
 	}
 }
 
-int string_to_list(char *string, char **list)
+int string_to_list(char *string, char **list, size_t buf_size)
 {
 	int i, j = 0, idx_w = 0;
 	char *word;
 
-	if(list == NULL || string == NULL)
-		return(1);
-	word = malloc(BUF_SIZE * sizeof(char));
+	word = malloc(buf_size * sizeof(char));
 	if(word == NULL)
 		return(1);
 	j = 0;
@@ -36,9 +32,8 @@ int string_to_list(char *string, char **list)
 		if (string[i] == ' ' || string[i] == '\n')
 		{
 			list[idx_w] = strdup(word);
-			if(list[idx_w] == NULL)
+			if(list == NULL)
 			{
-				list[idx_w] = NULL;
 				l_free(list);
 				return(1);
 			}
@@ -64,8 +59,8 @@ int string_to_list(char *string, char **list)
 int main(void)
 {
 	pid_t child_pid;
-	int status, i = 0;
-	size_t buf_size = BUF_SIZE;
+	size_t buf_size = 1024;
+	int status, i = 0, test = 0;
 	char **list_w;
 	char *buffer;
 	ssize_t res;
@@ -73,6 +68,7 @@ int main(void)
 	do
 	{
 		i++;
+		test++;
 		child_pid = fork();
 		if (child_pid == -1)
 		{
@@ -81,14 +77,15 @@ int main(void)
 		}
 		if (child_pid == 0)
 		{
-			buffer = malloc(BUF_SIZE * sizeof(char));
+			buffer = malloc(buf_size * sizeof(char));
 			if(buffer == NULL)
-				return(1);
-			list_w = malloc(BUF_SIZE * sizeof(char *));
+				return (1);
+			list_w = malloc(buf_size * sizeof(char *));
 			if(list_w == NULL)
 			{
 				free(buffer);
-				return(1);
+				perror("Error:");
+				return (1);
 			}
 			printf("$ ");
 			res = getline(&buffer, &buf_size, stdin);
@@ -96,24 +93,26 @@ int main(void)
 			{
 				free(buffer);
 				free(list_w);
-				return(1);
+				perror("Error:");
+				return (1);
 			}
-			if(string_to_list(buffer, list_w) == 1)
+			printf("in: \"%s\"\n", buffer);
+			if(string_to_list(buffer, list_w, buf_size) == 1)
 			{
 				free(buffer);
                                 free(list_w);
-                                return(1);
+				perror("Error:");
+				return (1);
 			}
 			if (execve(list_w[0], list_w, NULL) == -1)
 			{
 				perror("Error:");
+				return (1);
 			}
 		}
 		else
-		{
-			wait(&status);
-		}
+			waitpid(child_pid, &status, 0);
 	}
-	while (child_pid != 0);
+	while (child_pid != 0 && test <= 10);
 	return (0);
 }
