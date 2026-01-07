@@ -112,6 +112,7 @@ int main(void)
 		else
 		{
 			wait(&status);
+			printf("%d\n", status);
 		}
 	}
 	while (child_pid != 0);
