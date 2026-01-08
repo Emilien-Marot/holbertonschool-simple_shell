@@ -70,9 +70,32 @@ int main(void)
 	char *buffer;
 	ssize_t res;
 
+	buffer = malloc(BUF_SIZE * sizeof(char));
+	if(buffer == NULL)
+		return(1);
+	list_w = malloc(BUF_SIZE * sizeof(char *));
+	if(list_w == NULL)
+	{
+		free(buffer);
+		return(1);
+	}
 	do
 	{
 		i++;
+		printf("$ ");
+		res = getline(&buffer, &buf_size, stdin);
+		if (res == -1)
+		{
+			free(buffer);
+			free(list_w);
+			return(1);
+		}
+		if(string_to_list(buffer, list_w) == 1)
+		{
+			free(buffer);
+			free(list_w);
+			return(1);
+		}
 		child_pid = fork();
 		if (child_pid == -1)
 		{
@@ -81,29 +104,7 @@ int main(void)
 		}
 		if (child_pid == 0)
 		{
-			buffer = malloc(BUF_SIZE * sizeof(char));
-			if(buffer == NULL)
-				return(1);
-			list_w = malloc(BUF_SIZE * sizeof(char *));
-			if(list_w == NULL)
-			{
-				free(buffer);
-				return(1);
-			}
-			printf("$ ");
-			res = getline(&buffer, &buf_size, stdin);
-			if (res == -1)
-			{
-				free(buffer);
-				free(list_w);
-				return(1);
-			}
-			if(string_to_list(buffer, list_w) == 1)
-			{
-				free(buffer);
-                                free(list_w);
-                                return(1);
-			}
+			return(getpid());
 			if (execve(list_w[0], list_w, NULL) == -1)
 			{
 				perror("Error:");
@@ -118,3 +119,4 @@ int main(void)
 	while (child_pid != 0);
 	return (0);
 }
+
