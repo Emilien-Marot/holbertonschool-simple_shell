@@ -4,6 +4,7 @@
 #include<string.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+#include <errno.h>
 
 #define BUF_SIZE 1024
 
@@ -72,10 +73,14 @@ int main(void)
 
 	buffer = malloc(BUF_SIZE * sizeof(char));
 	if(buffer == NULL)
+	{
+		perror("Error: could not allocate memory to the buffer");
 		return(1);
+	}
 	list_w = malloc(BUF_SIZE * sizeof(char *));
 	if(list_w == NULL)
 	{
+		perror("Error: could not allocate memory to the buffer");
 		free(buffer);
 		return(1);
 	}
@@ -86,37 +91,41 @@ int main(void)
 		res = getline(&buffer, &buf_size, stdin);
 		if (res == -1)
 		{
-			free(buffer);
-			free(list_w);
-			return(1);
+			if(errno != 0)
+				perror("Error_1");
+			else
+				printf("\n");
+			break;
 		}
 		if(string_to_list(buffer, list_w) == 1)
 		{
 			free(buffer);
+			l_free(list_w);
 			free(list_w);
+			perror("Error_2");
 			return(1);
 		}
 		child_pid = fork();
 		if (child_pid == -1)
 		{
-			perror("Error:");
+			free(buffer);
+			l_free(list_w);
+			free(list_w);
+			perror("Error_3");
 			return (1);
 		}
 		if (child_pid == 0)
 		{
-			return(getpid());
 			if (execve(list_w[0], list_w, NULL) == -1)
-			{
-				perror("Error:");
-			}
+			perror("Error_4");
 		}
 		else
-		{
 			wait(&status);
-			printf("%d\n", status);
-		}
 	}
 	while (child_pid != 0);
+	free(buffer);
+	l_free(list_w);
+	free(list_w);
 	return (0);
 }
 
