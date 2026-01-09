@@ -11,7 +11,7 @@
  */
 void l_free(char **list_words)
 {
-	int i;
+	int i = 0;
 
 	for (i = 0; list_words[i] != NULL; i++)
 	{
@@ -54,10 +54,10 @@ int string_to_list(char *string, char **list)
  */
 int prompt(char **list_words)
 {
-	ssize_t res;
+	ssize_t res = 0;
 	size_t buf_size = 0;
 	char *buffer = NULL;
-	pid_t child_pid;
+	pid_t child_pid = 0;
 	int status, atty = isatty(0);
 
 	if(atty == 0)
@@ -119,6 +119,7 @@ int main(int ac __attribute__((unused)), char **av)
 		perror(error);
 		return (1);
 	}
+	list_words[0] = NULL;
 	while (1) {
 		ret = prompt(list_words);
 		if(ret == -1)
