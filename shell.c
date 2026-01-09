@@ -86,7 +86,7 @@ int prompt(char *buffer, char **list_words)
 	if(atty == 0)
 		errno = 0;
 	else
-		printf("$ ");
+		printf("#cisfun$ ");
 	res = getline(&buffer, &buf_size, stdin);
 	if (res == -1)
 	{
