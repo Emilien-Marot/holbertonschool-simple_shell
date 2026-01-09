@@ -87,6 +87,11 @@ int prompt(char **list_words)
 			free(buffer);
 			return(-1);
 		}
+		if (list_words[0] == NULL)
+		{
+			free(buffer);
+			return(0);
+		}
 		if (execve(list_words[0], list_words, NULL) == -1)
 			return(-1);
 		return(-1);
