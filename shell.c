@@ -1,13 +1,14 @@
-#include <stdio.h>
-#include <unistd.h>
-#include <stdlib.h>
-#include<string.h>
-#include <sys/types.h>
-#include <sys/wait.h>
-#include <errno.h>
+#include "shell.h"
 
 #define BUF_SIZE 1024
 
+/**
+ * l_free - free a list of strings and all the strings it points to
+ * 
+ * @list_words: list of strings to be freed
+ *
+ * Return: void
+ */
 void l_free(char **list_words)
 {
 	int i;
@@ -20,16 +21,24 @@ void l_free(char **list_words)
 	free(list_words);
 }
 
+/**
+ * string_to_list - take a string and separate it into a list of words
+ * 
+ * @string: string to be converted into a list
+ * @list: list that will contain the strings
+ *
+ * Return: 0 on success, -1 for an error
+ */
 int string_to_list(char *string, char **list)
 {
 	int i, j = 0, idx_w = 0;
 	char *word;
 
 	if (list == NULL || string == NULL)
-		return (1);
+		return (-1);
 	word = malloc(BUF_SIZE * sizeof(char));
 	if (word == NULL)
-		return (1);
+		return (-1);
 	j = 0;
 	idx_w = 0;
 	word[0] = '\0';
@@ -42,7 +51,7 @@ int string_to_list(char *string, char **list)
 			{
 				list[idx_w] = NULL;
 				l_free(list);
-				return (1);
+				return (-1);
 			}
 			idx_w++;
 			list[idx_w] = NULL;
@@ -58,9 +67,18 @@ int string_to_list(char *string, char **list)
 	return (0);
 }
 
-int prompt(char *buffer, size_t buf_size, char **list_words)
+/**
+ * prompt - waits for a command from stdin and execute it in a child process
+ * 
+ * @buffer: buffer that will contain the text from the stdin
+ * @list_words: list of strings that will contain the words of the buffer
+ *
+ * Return: return 1 to continue the loop, 0 to exit the loop and -1 for an error
+ */
+int prompt(char *buffer, char **list_words)
 {
 	ssize_t res;
+	size_t buf_size = 0;
 	pid_t child_pid;
 	int status;
 	int atty = isatty(0);
@@ -78,7 +96,7 @@ int prompt(char *buffer, size_t buf_size, char **list_words)
 			printf("\n");
 		return(0);
 	}
-	if (string_to_list(buffer, list_words) == 1)
+	if (string_to_list(buffer, list_words) == -1)
 	{
 		return(-1);
 	}
@@ -101,14 +119,16 @@ int prompt(char *buffer, size_t buf_size, char **list_words)
 }
 
 /**
- * main - fork & wait example
+ * main - program to run a simple shell
+ * 
+ * @ac: number of arguments given
+ * @av: list of arguments given
  *
- * Return: Always 0.
+ * Return: return 0 if it worked and 1 for an error
  */
 int main(int ac __attribute__((unused)), char **av)
 {
 	int ret = 0;
-	size_t buf_size = 0;
 	char **list_words = NULL, *buffer = NULL;
 	const char *error = av[0];
 
@@ -120,7 +140,7 @@ int main(int ac __attribute__((unused)), char **av)
 		return (1);
 	}
 	while (1) {
-		ret = prompt(buffer, buf_size, list_words);
+		ret = prompt(buffer, list_words);
 		if(ret == -1)
 			perror(error);
 		if (ret != 1)
@@ -128,5 +148,7 @@ int main(int ac __attribute__((unused)), char **av)
 	}
 	l_free(list_words);
 	free(buffer);
-	return (ret);
+	if(ret == 0)
+		return (0);
+	return(1);
 }
