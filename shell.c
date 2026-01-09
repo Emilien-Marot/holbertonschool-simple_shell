@@ -130,6 +130,6 @@ int main(int ac __attribute__((unused)), char **av)
 	free(list_words);
 	if(ret == -1)
 		return (1);
-	fprintf(stderr, "");
+	fprintf(stderr, "%s", "");
 	return(0);
 }
