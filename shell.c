@@ -8,15 +8,16 @@
 
 #define BUF_SIZE 1024
 
-void l_free(char **list_w)
+void l_free(char **list_words)
 {
 	int i;
 
-	for (i = 0; list_w[i] != NULL; i++)
+	for (i = 0; list_words[i] != NULL; i++)
 	{
-		free(list_w[i]);
-		list_w[i] = NULL;
+		free(list_words[i]);
+		list_words[i] = NULL;
 	}
+	free(list_words);
 }
 
 int string_to_list(char *string, char **list)
@@ -57,68 +58,75 @@ int string_to_list(char *string, char **list)
 	return (0);
 }
 
+int prompt(char *buffer, size_t buf_size, char **list_words)
+{
+	ssize_t res;
+	pid_t child_pid;
+	int status;
+	int atty = isatty(0);
+
+	if(atty == 0)
+		errno = 0;
+	else
+		printf("$ ");
+	res = getline(&buffer, &buf_size, stdin);
+	if (res == -1)
+	{
+		if (errno != 0)
+			return(-1);
+		else if(atty)
+			printf("\n");
+		return(0);
+	}
+	if (string_to_list(buffer, list_words) == 1)
+	{
+		return(-1);
+	}
+	child_pid = fork();
+	if (child_pid == -1)
+	{
+		return(-1);
+	}
+	if (child_pid == 0)
+	{
+		if (execve(list_words[0], list_words, NULL) == -1)
+			return(-1);
+		return(1);
+	}
+	else
+	{
+		wait(&status);
+		return(1);
+	}
+}
+
 /**
  * main - fork & wait example
  *
  * Return: Always 0.
  */
-int main(void)
+int main(int ac __attribute__((unused)), char **av)
 {
-	pid_t child_pid;
-	int status, i = 0, ret = 0;
-	size_t buf_size = BUF_SIZE;
-	char **list_w, *buffer;
-	ssize_t res;
+	int ret = 0;
+	size_t buf_size = 0;
+	char **list_words = NULL, *buffer = NULL;
+	const char *error = av[0];
 
-	buffer = malloc(BUF_SIZE * sizeof(char));
-	if (buffer == NULL)
+	list_words = malloc(BUF_SIZE * sizeof(char *));
+	if (list_words == NULL)
 	{
-		perror("Error: could not allocate memory to the buffer");
-		return (1);
-	}
-	list_w = malloc(BUF_SIZE * sizeof(char *));
-	if (list_w == NULL)
-	{
-		perror("Error: could not allocate memory to the buffer");
+		perror(error);
 		free(buffer);
 		return (1);
 	}
-	do {
-		i++;
-		printf("$ ");
-		res = getline(&buffer, &buf_size, stdin);
-		if (res == -1)
-		{
-			if (errno != 0)
-				perror("Error_1");
-			else
-				printf("\n");
+	while (1) {
+		ret = prompt(buffer, buf_size, list_words);
+		if(ret == -1)
+			perror(error);
+		if (ret != 1)
 			break;
-		}
-		if (string_to_list(buffer, list_w) == 1)
-		{
-			perror("Error_2");
-			ret = 1;
-			break;
-		}
-		child_pid = fork();
-		if (child_pid == -1)
-		{
-			perror("Error_3");
-			ret = 1;
-			break;
-		}
-		if (child_pid == 0)
-		{
-			if (execve(list_w[0], list_w, NULL) == -1)
-				perror("Error_4");
-		}
-		else
-			wait(&status);
-	} while (child_pid != 0);
-	l_free(list_w);
-	free(list_w);
+	}
+	l_free(list_words);
 	free(buffer);
-	return (0);
+	return (ret);
 }
-
