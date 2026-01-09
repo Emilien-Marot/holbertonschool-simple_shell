@@ -69,7 +69,7 @@ int prompt(char **list_words)
 	{
 		free(buffer);
 		if (errno != 0)
-			return(2);
+			return(-1);
 		else if(atty)
 			printf("\n");
 		return(0);
@@ -78,24 +78,24 @@ int prompt(char **list_words)
 	if (child_pid == -1)
 	{
 		free(buffer);
-		return(3);
+		return(-1);
 	}
 	if (child_pid == 0)
 	{
 		if (string_to_list(buffer, list_words) == -1)
 		{
 			free(buffer);
-			return(4);
+			return(-1);
 		}
 		if (execve(list_words[0], list_words, NULL) == -1)
-			return(5);
-		return(6);
+			return(-1);
+		return(-1);
 	}
 	else
 	{
 		wait(&status);
 		free(buffer);
-		return(7);
+		return(1);
 	}
 }
 
@@ -121,12 +121,14 @@ int main(int ac __attribute__((unused)), char **av)
 	}
 	while (1) {
 		ret = prompt(list_words);
-		if(ret != 0 && ret != 1)
+		if(ret == -1)
 			perror(error);
 		if (ret != 1)
 			break;
 	}
 	l_free(list_words);
 	free(list_words);
-	return (ret);
+	if(ret == -1)
+		return (1);
+	return(0);
 }
