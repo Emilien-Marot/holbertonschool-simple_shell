@@ -30,41 +30,17 @@ void l_free(char **list_words)
  */
 int string_to_list(char *string, char **list)
 {
-	int i, j = 0, idx_w = 0;
-	char *word;
+    int i = 0;
 
 	if (list == NULL || string == NULL)
 		return (-1);
-	word = malloc(BUF_SIZE * sizeof(char));
-	if (word == NULL)
-		return (-1);
-	j = 0;
-	idx_w = 0;
-	word[0] = '\0';
-	for (i = 0; string[i] != '\0'; i++)
+	list[0] = strtok(string, "\t\n ");
+	while (list[i] != NULL)
 	{
-		if (string[i] == ' ' || string[i] == '\n')
-		{
-			list[idx_w] = strdup(word);
-			if (list[idx_w] == NULL)
-			{
-				list[idx_w] = NULL;
-				l_free(list);
-				free(word);
-				return (-1);
-			}
-			idx_w++;
-			list[idx_w] = NULL;
-			j = 0;
-		}
-		else
-		{
-			word[j] = string[i];
-			j++;
-		}
-		word[j] = '\0';
+	    printf("%s\n", list[i]);
+	    i++;
+	    list[i] = strtok(NULL, "\t\n ");
 	}
-	free(word);
 	return (0);
 }
 
@@ -82,8 +58,7 @@ int prompt(char **list_words)
 	size_t buf_size = 0;
 	char *buffer = NULL;
 	pid_t child_pid;
-	int status;
-	int atty = isatty(0);
+	int status, atty = isatty(0);
 
 	if(atty == 0)
 		errno = 0;
@@ -99,26 +74,27 @@ int prompt(char **list_words)
 			printf("\n");
 		return(0);
 	}
-	if (string_to_list(buffer, list_words) == -1)
+	child_pid = fork();
+	if (child_pid == -1)
 	{
 		free(buffer);
 		return(-1);
 	}
-	free(buffer);
-	child_pid = fork();
-	if (child_pid == -1)
-	{
-		return(-1);
-	}
 	if (child_pid == 0)
 	{
+		if (string_to_list(buffer, list_words) == -1)
+		{
+			free(buffer);
+			return(-1);
+		}
 		if (execve(list_words[0], list_words, NULL) == -1)
 			return(-1);
-		return(1);
+		return(0);
 	}
 	else
 	{
 		wait(&status);
+		free(buffer);
 		return(1);
 	}
 }
