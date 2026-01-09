@@ -11,7 +11,7 @@
 
 void l_free(char **list_words);
 int string_to_list(char *string, char **list);
-int prompt(char *buffer, char **list_words);
+int prompt(char **list_words);
 int main(int ac __attribute__((unused)), char **av);
 
 #endif

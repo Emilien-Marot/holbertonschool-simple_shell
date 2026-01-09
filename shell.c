@@ -18,7 +18,6 @@ void l_free(char **list_words)
 		free(list_words[i]);
 		list_words[i] = NULL;
 	}
-	free(list_words);
 }
 
 /**
@@ -51,6 +50,7 @@ int string_to_list(char *string, char **list)
 			{
 				list[idx_w] = NULL;
 				l_free(list);
+				free(word);
 				return (-1);
 			}
 			idx_w++;
@@ -64,6 +64,7 @@ int string_to_list(char *string, char **list)
 		}
 		word[j] = '\0';
 	}
+	free(word);
 	return (0);
 }
 
@@ -75,10 +76,11 @@ int string_to_list(char *string, char **list)
  *
  * Return: return 1 to continue the loop, 0 to exit the loop and -1 for an error
  */
-int prompt(char *buffer, char **list_words)
+int prompt(char **list_words)
 {
 	ssize_t res;
 	size_t buf_size = 0;
+	char *buffer = NULL;
 	pid_t child_pid;
 	int status;
 	int atty = isatty(0);
@@ -90,6 +92,7 @@ int prompt(char *buffer, char **list_words)
 	res = getline(&buffer, &buf_size, stdin);
 	if (res == -1)
 	{
+		free(buffer);
 		if (errno != 0)
 			return(-1);
 		else if(atty)
@@ -98,8 +101,10 @@ int prompt(char *buffer, char **list_words)
 	}
 	if (string_to_list(buffer, list_words) == -1)
 	{
+		free(buffer);
 		return(-1);
 	}
+	free(buffer);
 	child_pid = fork();
 	if (child_pid == -1)
 	{
@@ -129,25 +134,24 @@ int prompt(char *buffer, char **list_words)
 int main(int ac __attribute__((unused)), char **av)
 {
 	int ret = 0;
-	char **list_words = NULL, *buffer = NULL;
+	char **list_words = NULL;
 	const char *error = av[0];
 
 	list_words = malloc(BUF_SIZE * sizeof(char *));
 	if (list_words == NULL)
 	{
 		perror(error);
-		free(buffer);
 		return (1);
 	}
 	while (1) {
-		ret = prompt(buffer, list_words);
+		ret = prompt(list_words);
 		if(ret == -1)
 			perror(error);
 		if (ret != 1)
 			break;
 	}
 	l_free(list_words);
-	free(buffer);
+	free(list_words);
 	if(ret == 0)
 		return (0);
 	return(1);
