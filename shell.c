@@ -137,7 +137,7 @@ int prompt(const char *shell_name)
 {
 	ssize_t res = 0;
 	size_t buf_size = 0;
-	char *buffer = NULL, *path = NULL, **list_words = NULL;
+	char *buffer = NULL, **list_words = NULL;
 	int ret = 0, atty = isatty(0);
 
 	if (atty == 0)
