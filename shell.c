@@ -186,9 +186,10 @@ int prompt()
 	path = get_path(list_words[0]);
 	if (path == NULL)
 	{
+		errno = 2;
 		free(buffer);
 		free(list_words);
-		return(1);
+		return(-1);
 	}
 	child_pid = fork();
 	if (child_pid == -1)
@@ -225,17 +226,18 @@ int prompt()
 int main(int ac __attribute__((unused)), char **av)
 {
 	int ret = 0;
-	const char *error = av[0];
+	const char *name = av[0];
 
 	while (1) {
-		ret = prompt();
+		ret = prompt(name);
 		if(ret == -1)
-			perror(error);
+			perror(name);
 		if (ret != 1)
 			break;
 	}
 	if(ret == -1)
 		return (1);
-	fprintf(stderr, "%s", "");
+	if(stderr == 0)
+		fprintf(stderr, "%s", "");
 	return(0);
 }

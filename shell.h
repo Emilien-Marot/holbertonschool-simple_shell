@@ -12,7 +12,7 @@
 
 void l_free(char **list_words);
 int string_to_list(char *string, char **list);
-int prompt(void);
+int prompt();
 int main(int ac __attribute__((unused)), char **av);
 
 #endif
