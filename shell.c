@@ -40,7 +40,9 @@ char *get_path(char *name)
 	{
 		return(strdup(name));
 	}
-	PATH = _getenv("PATH");
+	PATH = strdup(_getenv("PATH"));
+	if(PATH == NULL)
+		return(NULL);
 	full = malloc(PATH_MAX * sizeof(char));
 	if(full == NULL)
 		return(NULL);
@@ -66,7 +68,10 @@ char *get_path(char *name)
 			full[i+j] = '\0';
 		}
 		if(access(full, F_OK) == 0)
+		{
+			free(PATH);
 			return(full);
+		}
 		path = strtok(NULL, ":");
 	}
 	free(full);
