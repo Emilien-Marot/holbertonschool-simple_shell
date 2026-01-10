@@ -190,7 +190,7 @@ int prompt(const char *shell_name)
 		fprintf(stderr, "%s: 1: %s: not found\n", shell_name, list_words[0]);
 		free(buffer);
 		free(list_words);
-		exit(EXIT_FAILURE);
+		exit(127);
 	}
 	child_pid = fork();
 	if (child_pid == -1)
