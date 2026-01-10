@@ -9,6 +9,8 @@ char *_getenv(const char *name)
 {
 	int i, j, same;
 
+	if(environ == NULL)
+		return(NULL);
 	for(i = 0; environ[i] != NULL; i++)
 	{
 		same = 1;
