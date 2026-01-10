@@ -19,7 +19,7 @@ char *get_path(char *name);
 void l_free(char **list_words);
 int string_to_list(char *string, char **list);
 int prompt_init(char *buffer, char **list_words);
-int exec_prompt(char *shell_name, char *buffer, char **list_words);
+int exec_prompt(const char *shell_name, char *buffer, char **list_words);
 int prompt(const char *shell_name);
 
 #endif

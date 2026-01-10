@@ -85,7 +85,7 @@ int prompt_init(char *buffer, char **list_words)
  * Return: return 1 to continue the loop,
  * 0 to exit the loop and -1 for an error
  */
-int exec_prompt(char *shell_name, char *buffer, char **list_words)
+int exec_prompt(const char *shell_name, char *buffer, char **list_words)
 {
 	char *path = NULL;
 	int status;
