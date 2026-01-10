@@ -259,7 +259,6 @@ int main(int ac __attribute__((unused)), char **av)
 	}
 	if(ret == -1)
 		return (errno);
-	if(stderr == 0)
-		fprintf(stderr, "%s", "");
+	fprintf(stderr, "%s", "");
 	return(0);
 }
