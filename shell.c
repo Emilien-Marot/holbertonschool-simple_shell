@@ -42,7 +42,7 @@ char *get_path(char *name)
 	{
 		return(name);
 	}
-	PATH = strdup(_getenv("PATH"));
+	PATH = _getenv("PATH");
 	if(PATH == NULL)
 		return(NULL);
 	full = malloc(PATH_MAX * sizeof(char));
