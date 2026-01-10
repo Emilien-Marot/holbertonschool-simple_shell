@@ -239,7 +239,7 @@ int main(int ac __attribute__((unused)), char **av)
 			break;
 	}
 	if(ret == -1)
-		return (1);
+		return (errno);
 	if(stderr == 0)
 		fprintf(stderr, "%s", "");
 	return(0);
