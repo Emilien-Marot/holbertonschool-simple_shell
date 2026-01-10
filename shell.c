@@ -30,6 +30,18 @@ char *_getenv(const char *name)
 	return(NULL);
 }
 
+void print_env()
+{
+	int i;
+
+	if(environ == NULL)
+		return;
+	for(i = 0; environ[i] != NULL; i++)
+	{
+		printf("%s\n", environ[i]);
+	}
+}
+
 /*TODO*/
 char *get_path(char *name)
 {
@@ -184,6 +196,13 @@ int prompt(const char *shell_name)
 		free(buffer);
 		free(list_words);
 		return(0);
+	}
+	if(strcmp(list_words[0], "env") == 0)
+	{
+		print_env();
+		free(buffer);
+		free(list_words);
+		return(1);
 	}
 	path = get_path(list_words[0]);
 	if (path == NULL)
