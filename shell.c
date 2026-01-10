@@ -85,7 +85,7 @@ int prompt_init(char *buffer, char **list_words)
  * Return: return 1 to continue the loop,
  * 0 to exit the loop and -1 for an error
  */
-int exec_prompt(char *buffer, char **list_words)
+int exec_prompt(char *shell_name, char *buffer, char **list_words)
 {
 	char *path = NULL;
 	int status;
@@ -138,7 +138,7 @@ int prompt(const char *shell_name)
 	ssize_t res = 0;
 	size_t buf_size = 0;
 	char *buffer = NULL, *path = NULL, **list_words = NULL;
-	int atty = isatty(0);
+	int ret = 0, atty = isatty(0);
 
 	if (atty == 0)
 		errno = 0;
@@ -154,10 +154,10 @@ int prompt(const char *shell_name)
 			printf("\n");
 		return (0);
 	}
-	ret = prompt_init();
+	ret = prompt_init(buffer, list_words);
 	if (ret != 0)
 		return (ret);
-	return (exec_prompt(buffer, list_words));
+	return (exec_prompt(shell_name, buffer, list_words));
 }
 
 /**
