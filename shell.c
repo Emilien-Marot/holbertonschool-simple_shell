@@ -40,7 +40,7 @@ char *get_path(char *name)
 		return(NULL);
 	if(access(name, F_OK) == 0)
 	{
-		return(name);
+		return(strdup(name));
 	}
 	PATH = _getenv("PATH");
 	if(PATH == NULL)
