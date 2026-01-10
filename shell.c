@@ -24,7 +24,7 @@ char *_getenv(const char *name)
 		}
 		if(same && environ[i][j] == '=' && name[j] == '\0')
 		{
-			return(&(environ[i][j+1]));
+			return(strdup(&(environ[i][j+1])));
 		}
 	}
 	return(NULL);
@@ -40,7 +40,7 @@ char *get_path(char *name)
 		return(NULL);
 	if(access(name, F_OK) == 0)
 	{
-		return(strdup(name));
+		return(name);
 	}
 	PATH = strdup(_getenv("PATH"));
 	if(PATH == NULL)
