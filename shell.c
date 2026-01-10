@@ -136,7 +136,7 @@ int string_to_list(char *string, char **list)
  *
  * Return: return 1 to continue the loop, 0 to exit the loop and -1 for an error
  */
-int prompt()
+int prompt(const char *shell_name)
 {
 	ssize_t res = 0;
 	size_t buf_size = 0;
@@ -186,10 +186,11 @@ int prompt()
 	path = get_path(list_words[0]);
 	if (path == NULL)
 	{
-		errno = 2;
+		errno = 0;
+		fprintf(stderr, "%s: 1: %s: not found\n", shell_name, list_words[0]);
 		free(buffer);
 		free(list_words);
-		return(-1);
+		exit(EXIT_FAILURE);
 	}
 	child_pid = fork();
 	if (child_pid == -1)
