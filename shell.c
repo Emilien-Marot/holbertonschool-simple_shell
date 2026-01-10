@@ -45,7 +45,10 @@ char *get_path(char *name)
 		return(NULL);
 	full = malloc(PATH_MAX * sizeof(char));
 	if(full == NULL)
+	{
+		free(PATH);
 		return(NULL);
+	}
 	path = strtok(PATH, ":");
 	while(path != NULL)
 	{
@@ -74,6 +77,7 @@ char *get_path(char *name)
 		}
 		path = strtok(NULL, ":");
 	}
+	free(PATH);
 	free(full);
 	return(NULL);
 }
