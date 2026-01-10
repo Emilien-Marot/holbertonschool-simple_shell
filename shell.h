@@ -8,10 +8,11 @@
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <errno.h>
+#include <linux/limits.h>
 
 void l_free(char **list_words);
 int string_to_list(char *string, char **list);
-int prompt(char **list_words);
+int prompt(void);
 int main(int ac __attribute__((unused)), char **av);
 
 #endif
