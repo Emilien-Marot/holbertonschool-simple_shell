@@ -1,0 +1,58 @@
+.TH hsh 1 "JANUARY 11, 2026" "1.0" "simple_shell Man Page"
+
+.SH NAME
+
+.B hsh
+- command language interpreter or shell
+
+
+.SH SYNOPSIS
+
+.B  ./hsh
+.I (no options included as of this writing (JANUARY 11, 2026))
+
+.SH DESCRIPTION
+
+.B hsh
+is a command language interpreter that executes commands read from the standard input or from a file.
+
+.SH INVOCATION
+
+The use of gcc (GNU Compiler Collection), is recommended for compiling simple_shell as shown.
+
+.P
+.RS
+.B $ gcc *.c -o hsh
+.P
+.RE
+
+To use the interactive mode, just call the executable. Then write your command after "#cisfun$" and press "enter".
+
+.P
+.RS
+.B $ ./hsh
+.P
+.RE
+To use the non-interactive mode, write a command to display the command to run followed by '|' and the shell
+.P
+.RS
+.B echo 'ls' | ./hsh
+.RE
+
+.SH BUILTINS
+
+The following builtin commands are supported:
+
+.TP
+.B env
+- prints the current environmental variable
+.TP
+.B exit
+- exits the shell
+
+.SH AUTHOR
+
+Emilien Marot <12394@holbertonstudents.com>
+
+.SH SEE ALSO
+sh
