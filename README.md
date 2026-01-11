@@ -1,8 +1,8 @@
 # C - Simple shell
 
-A shell is a Commanand Language Interpreter, an interface between the kernel and the user. It allows the user to execute programs (called commands) and read the computer's answers.
+A shell is a Command Language Interpreter, an interface between the kernel and the user. It allows the user to execute programs (called commands) and read the computer's answers.
 
-This project is a simple partial recreation of the Linux shell. This project was made with a limited list of functions ans syscalls as per the re Holberton School.
+This project is a simple partial recreation of the Linux shell. This project was made with a limited list of functions and syscalls as per the Requirements of Holberton School.
 
 ## File Descriptions
 
